@@ -1,48 +1,121 @@
-from ursina import *
+from math import pi, sin, cos
 
-# Initialisation de l'application
-app = Ursina()
 
-# Fenêtre
-window.title = "Mon jeu Ursina"
-window.borderless = False
-window.fullscreen = False
-window.exit_button.visible = False
-window.fps_counter.enabled = True
+from direct.showbase.ShowBase import ShowBase
 
-# Sol
-ground = Entity(
-    model='plane',
-    scale=(20, 1, 20),
-    texture='white_cube',
-    texture_scale=(20, 20),
-    collider='box',
-    color=color.light_gray
-)
+from direct.task import Task
 
-# Cube de test
-cube = Entity(
-    model='cube',
-    scale=1,
-    position=(0, 0.5, 0),
-    texture='white_cube',
-    color=color.azure,
-    collider='box'
-)
+from direct.actor.Actor import Actor
 
-# Caméra
-camera.position = (0, 8, -15)
-camera.rotation_x = 30
+from direct.interval.IntervalGlobal import Sequence
 
-# Fonction update (appelée à chaque frame)
-def update():
-    # Rotation du cube
-    cube.rotation_y += 40 * time.dt
+from panda3d.core import Point3
 
-# Entrées clavier / souris
-def input(key):
-    if key == 'escape':
-        quit()
 
-# Lancement du jeu
+
+class MyApp(ShowBase):
+
+    def __init__(self):
+
+        ShowBase.__init__(self)
+
+
+        # Disable the camera trackball controls.
+
+        self.disableMouse()
+
+
+        # Load the environment model.
+
+        self.scene = self.loader.loadModel("models/environment")
+
+        # Reparent the model to render.
+
+        self.scene.reparentTo(self.render)
+
+        # Apply scale and position transforms on the model.
+
+        self.scene.setScale(0.25, 0.25, 0.25)
+
+        self.scene.setPos(-8, 42, 0)
+
+
+        # Add the spinCameraTask procedure to the task manager.
+
+        self.taskMgr.add(self.spinCameraTask, "SpinCameraTask")
+
+
+        # Load and transform the panda actor.
+
+        ralph = Actor(
+            "models/ralph",
+            {"walk": "models/ralph-walk", "run": "models/ralph-run"}
+        )
+        self.pandaActor.setScale(0.005, 0.005, 0.005)
+
+        self.pandaActor.reparentTo(self.render)
+
+        # Loop its animation.
+
+        self.pandaActor.loop("walk")
+
+
+        # Create the four lerp intervals needed for the panda to
+
+        # walk back and forth.
+
+        posInterval1 = self.pandaActor.posInterval(13,
+
+                                                   Point3(0, -10, 0),
+
+                                                   startPos=Point3(0, 10, 0))
+
+        posInterval2 = self.pandaActor.posInterval(13,
+
+                                                   Point3(0, 10, 0),
+
+                                                   startPos=Point3(0, -10, 0))
+
+        hprInterval1 = self.pandaActor.hprInterval(3,
+
+                                                   Point3(180, 0, 0),
+
+                                                   startHpr=Point3(0, 0, 0))
+
+        hprInterval2 = self.pandaActor.hprInterval(3,
+
+                                                   Point3(0, 0, 0),
+
+                                                   startHpr=Point3(180, 0, 0))
+
+
+        # Create and play the sequence that coordinates the intervals.
+
+        self.pandaPace = Sequence(posInterval1, hprInterval1,
+
+                                  posInterval2, hprInterval2,
+
+                                  name="pandaPace")
+
+        self.pandaPace.loop()
+
+
+    # Define a procedure to move the camera.
+
+    def spinCameraTask(self, task):
+
+        angleDegrees = task.time * 6.0
+
+        angleRadians = angleDegrees * (pi / 180.0)
+
+        self.camera.setPos(20 * sin(angleRadians), -20 * cos(angleRadians), 3)
+
+        self.camera.setHpr(angleDegrees, 0, 0)
+
+        return Task.cont
+
+
+
+app = MyApp()
+
 app.run()
