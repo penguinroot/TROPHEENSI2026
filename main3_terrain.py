@@ -17,99 +17,102 @@ class MyApp(ShowBase):
         ShowBase.__init__(self)
         self.disableMouse()
 
-        # ======================
+        # ==================================================
         # LUMIÈRES
-        # ======================
+        # ==================================================
         ambient = AmbientLight("ambient")
         ambient.setColor(Vec4(0.4, 0.4, 0.4, 1))
-        self.ambientNP = self.render.attachNewNode(ambient)
-        self.render.setLight(self.ambientNP)
+        self.render.setLight(self.render.attachNewNode(ambient))
 
         sun = DirectionalLight("sun")
         sun.setColor(Vec4(0.9, 0.9, 0.85, 1))
-        self.sunNP = self.render.attachNewNode(sun)
-        self.sunNP.setHpr(-60, -60, 0)
-        self.render.setLight(self.sunNP)
+        sun_np = self.render.attachNewNode(sun)
+        sun_np.setHpr(-60, -45, 0)
+        self.render.setLight(sun_np)
 
         self.setBackgroundColor(0.53, 0.8, 0.92, 1)
 
-        # ======================
+        # ==================================================
         # CAMERA
-        # ======================
-        self.camera.setPos(250, 250, 20)
-
-        # ======================
-        # SOURIS
-        # ======================
-        props = WindowProperties()
-        props.setCursorHidden(True)
-        self.win.requestProperties(props)
-
-        self.mouseSensitivity = 0.15
+        # ==================================================
+        self.camera.setPos(150, 150, 25)
         self.camYaw = 0
         self.camPitch = 0
 
+        # ==================================================
+        # SOURIS
+        # ==================================================
+        props = WindowProperties()
+        props.setCursorHidden(True)
+        self.win.requestProperties(props)
+        self.mouseSensitivity = 0.15
         self.centerMouse()
 
-        # ======================
+        # ==================================================
         # MOUVEMENT
-        # ======================
-        self.speed = 15
-        self.strafeSpeed = 12
-        self.currentVelocity = Vec3(0, 0, 0)
-
-        # ======================
-        # GRAVITÉ
-        # ======================
-        self.gravity = -30
+        # ==================================================
+        self.speed = 55
+        self.gravity = -35
+        self.jumpForce = 12
         self.velocityZ = 0
-        self.jumpForce = 10
 
-        # ======================
-        # CLAVIER
-        # ======================
-        self.keyMap = {"forward": False, "backward": False, "left": False, "right": False}
-        for k in self.keyMap:
-            self.accept(k[0], self.setKey, [k, True])
-            self.accept(f"{k[0]}-up", self.setKey, [k, False])
+        # ==================================================
+        # CLAVIER (ZQSD)
+        # ==================================================
+        self.keyMap = {
+            "forward": False,
+            "backward": False,
+            "left": False,
+            "right": False
+        }
+
+        self.accept("z", self.setKey, ["forward", True])
+        self.accept("z-up", self.setKey, ["forward", False])
+        self.accept("s", self.setKey, ["backward", True])
+        self.accept("s-up", self.setKey, ["backward", False])
+        self.accept("q", self.setKey, ["left", True])
+        self.accept("q-up", self.setKey, ["left", False])
+        self.accept("d", self.setKey, ["right", True])
+        self.accept("d-up", self.setKey, ["right", False])
 
         self.accept("space", self.jump)
         self.accept("escape", self.userExit)
 
-        # ======================
+        # ==================================================
         # TERRAIN
-        # ======================
+        # ==================================================
         self.terrainSize = 300
         self.terrainScale = 3
-        self.heightScale = 15
+        self.heightScale = 20
 
-        self.noise = PerlinNoise(octaves=5, seed=3)
+        self.noise = PerlinNoise(octaves=2, seed=2)
         self.heightmap = self.generateHeightmap()
-
         self.terrain = self.generateTerrain()
         self.terrain.reparentTo(self.render)
-        self.terrain.setColor(0.2, 0.6, 0.25, 1)  # herbe
+        self.terrain.setColor(0.2, 0.6, 0.25, 1)
 
-        # ======================
+        # ==================================================
         # TASKS
-        # ======================
+        # ==================================================
         self.taskMgr.add(self.updateMouseLook, "MouseLook")
-        self.taskMgr.add(self.updateCamera, "UpdateCamera")
+        self.taskMgr.add(self.updatePlayer, "UpdatePlayer")
 
-    # =====================================================
+    # ==================================================
     # INPUT
-    # =====================================================
+    # ==================================================
     def setKey(self, key, value):
         self.keyMap[key] = value
 
     def centerMouse(self):
-        x = self.win.getXSize() // 2
-        y = self.win.getYSize() // 2
-        self.win.movePointer(0, x, y)
+        self.win.movePointer(
+            0,
+            self.win.getXSize() // 2,
+            self.win.getYSize() // 2
+        )
 
-    # =====================================================
+    # ==================================================
     # MOUSE LOOK
-    # =====================================================
+    # ==================================================
     def updateMouseLook(self, task):
         if self.mouseWatcherNode.hasMouse():
             mw = self.win.getPointer(0)
@@ -125,9 +128,9 @@ class MyApp(ShowBase):
 
         return Task.cont
 
-    # =====================================================
+    # ==================================================
     # TERRAIN
-    # =====================================================
+    # ==================================================
     def generateHeightmap(self):
         size = self.terrainSize
         hm = np.zeros((size, size))
@@ -147,28 +150,27 @@ class MyApp(ShowBase):
         format = GeomVertexFormat.getV3n3()
         vdata = GeomVertexData("terrain", format, Geom.UHStatic)
 
-        vertex = GeomVertexWriter(vdata, "vertex")
-        normal = GeomVertexWriter(vdata, "normal")
+        v = GeomVertexWriter(vdata, "vertex")
+        n = GeomVertexWriter(vdata, "normal")
         tris = GeomTriangles(Geom.UHStatic)
 
         size = self.terrainSize
 
-        def height(x, y):
+        def h(x, y):
             return self.heightmap[y][x]
 
         for y in range(size):
             for x in range(size):
-                h = height(x, y)
-                vertex.addData3(x * self.terrainScale, y * self.terrainScale, h)
+                z = h(x, y)
+                v.addData3(x * self.terrainScale, y * self.terrainScale, z)
 
-                # Calcul normal simple
-                hl = height(max(x - 1, 0), y)
-                hr = height(min(x + 1, size - 1), y)
-                hd = height(x, max(y - 1, 0))
-                hu = height(x, min(y + 1, size - 1))
+                hl = h(max(x - 1, 0), y)
+                hr = h(min(x + 1, size - 1), y)
+                hd = h(x, max(y - 1, 0))
+                hu = h(x, min(y + 1, size - 1))
 
-                n = Vec3(hl - hr, hd - hu, 2).normalized()
-                normal.addData3(n)
+                normal = Vec3(hl - hr, hd - hu, 2).normalized()
+                n.addData3(normal)
 
         def vid(x, y):
             return y * size + x
@@ -185,36 +187,44 @@ class MyApp(ShowBase):
 
         return self.render.attachNewNode(node)
 
-    # =====================================================
-    # MOVE + GRAVITÉ
-    # =====================================================
+    # ==================================================
+    # PLAYER
+    # ==================================================
     def jump(self):
         if self.velocityZ == 0:
             self.velocityZ = self.jumpForce
 
-    def updateCamera(self, task):
-        dt = globalClock.getDt()
+    def updatePlayer(self, task):
+        dt = min(globalClock.getDt(), 0.05)
 
-        target = Vec3(0, 0, 0)
+        # Direction
+        direction = Vec3(0, 0, 0)
         if self.keyMap["forward"]:
-            target.y += self.speed
+            direction.y += 1
         if self.keyMap["backward"]:
-            target.y -= self.speed
+            direction.y -= 1
         if self.keyMap["left"]:
-            target.x -= self.strafeSpeed
+            direction.x -= 1
         if self.keyMap["right"]:
-            target.x += self.strafeSpeed
+            direction.x += 1
 
-        self.currentVelocity += (target - self.currentVelocity) * min(dt * 8, 1)
-        move = self.currentVelocity * dt
+        if direction.length() > 0:
+            direction.normalize()
+
+        move = direction * self.speed * dt
         self.camera.setPos(self.camera, move.x, move.y, 0)
 
+        # Gravité
         self.velocityZ += self.gravity * dt
         newZ = self.camera.getZ() + self.velocityZ * dt
 
-        ground = self.getGroundHeight(self.camera.getX(), self.camera.getY()) + 2
-        if newZ < ground:
-            newZ = ground
+        groundZ = self.getGroundHeight(
+            self.camera.getX(),
+            self.camera.getY()
+        ) + 2.0
+
+        if newZ < groundZ:
+            newZ = groundZ
             self.velocityZ = 0
 
         self.camera.setZ(newZ)
