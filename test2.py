@@ -10,7 +10,7 @@ screen = pygame.display.set_mode((LARGEUR, HAUTEUR))
 pygame.display.set_caption("Écosystème vivant")
 VERT = (34, 139, 34)
 clock = pygame.time.Clock()
-FPS = 600
+FPS = 60
 class Nouritture():
     def __init__(self,x,y,color,):
         self.x=x
@@ -18,7 +18,7 @@ class Nouritture():
         self.color=color
     def dessiner(self):
         pygame.draw.rect(screen, self.color, (self.x, self.y, 10, 10))
-class plante(Nouritture):
+class Plante(Nouritture):
     def __init__(self, x, y, color):
         super().__init__(x, y, color)
 
@@ -57,19 +57,17 @@ class Lapin(Animal):
             lst_nouritture.remove(nourr_plus_proche)
             return lst_nouritture
 running = True
-lst_lapin=[Lapin(2, 10, 10, (255, 255, 255)) for _ in range(1)]
-lst_nouritture = [Nouritture(100+randint(1,300), 100+randint(1,300), (0, 125, 0)) for _ in range(100)]
+lapin=Lapin(2,10,10,(255,255,255))
+plante=[Plante(100,200,(0,200,0))]
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
 
     screen.fill(VERT)
-    for i in lst_lapin :
-        i.aller_manger(lst_nouritture)
-        i.dessiner()
-    for j in lst_nouritture :
-        j.dessiner()
+    plante[0].dessiner()
+    lapin.aller_manger(plante)
+    lapin.dessiner()
     pygame.display.flip()
     clock.tick(FPS)
 
