@@ -52,10 +52,10 @@ def mettre_a_jour_fenetre():
 # ===== OBJETS À TROUVER =====
 arbre = Entity(
     nom='arbre',
-    model='cube',
-    collider='box',
+    model='models/tree1/birch_tree.obj',
+    collider='mesh',
     scale=10,
-    position=(0, 5, 30),
+    position=(0, 0, 30),
 )
 arbre.tag = 'a_trouver'
 
