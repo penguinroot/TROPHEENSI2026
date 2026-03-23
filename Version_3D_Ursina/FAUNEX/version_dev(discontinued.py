@@ -1,26 +1,40 @@
 from ursina import *
 from ursina.prefabs.first_person_controller import FirstPersonController
-from ursina.shaders import lit_with_shadows_shader
 import time
 import json
 import os
 from math import sin
 from collections import deque
-from pathlib import Path
 
-# Configuration des chemins pour les assets
-ASSETS_DIR = Path(__file__).parent / "assets_add"
-ANIMALS_DIR = ASSETS_DIR / "3d" / "animals"
-GROUND_DIR = ASSETS_DIR / "3d" / "ground"
-FARMER_DIR = ASSETS_DIR / "3d" / "farmer"
-
-# Enregistrer les chemins des assets auprès d'Ursina
-application.asset_folder = ASSETS_DIR
+application.asset_folder = 'assets'
 
 app = Ursina(title='FAUNEX', borderless=False)
-# app.wireframe_on()
 window.exit_button.enabled = False
 window.fps_counter.enabled = True
+
+MODELES_ANIMAUX = {
+    "Renard Roux": "3d/animals/01_red_fox",
+    "Ours Brun": "3d/animals/02_brown_bear",
+    "Cerf": "3d/animals/03_deer",
+    "Fennec": "3d/animals/04_fennec",
+    "Loup Gris": "3d/animals/05_gray_wolf",
+    "Sanglier": "3d/animals/06_wild_boar",
+    "Lynx": "3d/animals/07_lynx",
+    "Panthère": "3d/animals/08_panther",
+    "Aigle Royal": "3d/animals/09_golden_eagle",
+    "Faucon": "3d/animals/10_falcon",
+    "Corbeau": "3d/animals/11_crow",
+    "Hibou": "3d/animals/12_owl",
+    "Pigeon": "3d/animals/13_pigeon",
+    "Crocodile": "3d/animals/14_crocodile",
+    "Vipère": "3d/animals/15_viper",
+    "Caméléon": "3d/animals/16_chameleon",
+    "Iguane": "3d/animals/17_iguana",
+    "Scorpion": "3d/animals/18_scorpio",
+    "Scarabée": "3d/animals/19_beetle",
+    "Mante": "3d/animals/20_mantis",
+    "Papillon": "3d/animals/21_butterfly",
+}
 
 class Couleurs:
     FOND = color.rgba(12/255, 14/255, 22/255, 245/255)
@@ -46,47 +60,6 @@ class ParametresJeu:
     DUREE_NOTIFICATION = 3.0
     ESPACEMENT_NOTIFICATION = 0.08
 
-# Dictionnaire des tailles par animal
-TAILLES_ANIMAUX = {
-    # Mammifères (gros)
-    "Ours Brun": 2.0,
-    "Loup Gris": 1.8,
-    "Panthère": 1.9,
-    "Lynx": 0.5,
-    "Sanglier": 1.0,
-    "Cerf": 0.25,
-    "Renard Roux": 1.3,
-    "Fennec": 0.005,
-    
-    # Oiseaux (moyens)
-    "Aigle Royal": 0.5,
-    "Faucon": 1.2,
-    "Hibou": 0.1,
-    "Corbeau": 0.7,
-    "Pigeon": 0.6,
-    
-    # Reptiles (petits/moyens)
-    "Crocodile": 0.05,
-    "Iguane": 0.5,
-    "Vipère": 0.05,
-    "Caméléon": 0.05,
-    
-    # Insectes (très petits)
-    "Scorpion": 0.05,
-    "Scarabée": 0.05,
-    "Mante": 0.05,
-    "Papillon": 0.35,
-}
-
-# Dictionnaire des tailles pour éléments du monde
-TAILLES_ELEMENTS = {
-    "arbre_grand": 0.05,
-    "arbre_petit": 0.05,
-    "rocher_grand": 0.05,
-    "rocher_petit": 0.05,
-    "buisson": 0.05,
-}
-
 def distance_2d(a, b):
     return ((a[0] - b[0]) ** 2 + (a[2] - b[2]) ** 2) ** 0.5
 
@@ -100,112 +73,31 @@ def creer_bouton(texte, parent, pos, taille=(0.62, 0.09), au_clic=None,
         btn.on_click = au_clic
     return btn
 
-# Dictionnaire de mapping des modèles GLB
-MODELES_ANIMAUX = {
-    "Renard Roux": "01_red_fox.glb",
-    "Ours Brun": "02_brown_bear.glb",
-    "Cerf": "03_deer.glb",
-    "Fennec": "04_fennec.glb",
-    "Loup Gris": "05_gray_wolf.glb",
-    "Sanglier": "06_wild_boar.glb",
-    "Lynx": "07_lynx.glb",
-    "Panthère": "08_panther.glb",
-    "Aigle Royal": "09_golden_eagle.glb",
-    "Faucon": "10_falcon.glb",
-    "Corbeau": "11_crow.glb",
-    "Hibou": "12_owl.glb",
-    "Pigeon": "13_pigeon.glb",
-    "Crocodile": "14_crocodile.glb",
-    "Vipère": "15_viper.glb",
-    "Caméléon": "16_chameleon.glb",
-    "Iguane": "17_iguana.glb",
-    "Scorpion": "18_scorpio.glb",
-    "Scarabée": "19_beetle.glb",
-    "Mante": "20_mantis.glb",
-    "Papillon": "21_butterfly.glb",
-}
-
-MODELES_ARBRES = {
-    "arbre_grand": "00002_tree.glb",
-    "arbre_petit": "00002_tree.glb",
-    "rocher_petit": "00003_rocks.glb",
-    "rocher_grand": "00004_rocks.glb",
-    "buisson": "00005_bush.glb",
-}
-
-def chemin_modele_ursina(chemin: Path):
-    """
-    Convertit un chemin OS en chemin compatible Ursina/Panda3D.
-    Priorité au chemin relatif à application.asset_folder.
-    """
-    try:
-        return chemin.relative_to(ASSETS_DIR).as_posix()
-    except ValueError:
-        return chemin.as_posix()
-
-def charger_modele_glb(nom_animal, chemin_complet=None):
-    """
-    Charge un modèle GLB avec ses textures intégrées.
-    Retourne le chemin absolu du modèle pour que Ursina charge les textures.
-    """
-    if chemin_complet is None:
-        if nom_animal not in MODELES_ANIMAUX:
-            return None
-        chemin_complet = ANIMALS_DIR / MODELES_ANIMAUX[nom_animal]
-    
-    if not chemin_complet.exists():
-        print(f"⚠️  Modèle non trouvé: {chemin_complet}")
-        return None
-    
-    try:
-        return chemin_modele_ursina(chemin_complet)
-    except Exception as e:
-        print(f"❌ Erreur lors du chargement de {nom_animal}: {e}")
-        return None
-
 class Animal(Entity):
     def __init__(self, nom, espece, valeur_couleur, position, comportement, rarete):
-        # Récupère la taille depuis le dictionnaire
-        taille = TAILLES_ANIMAUX.get(nom, 1.5)
-        
-        # Essayer de charger le modèle GLB
-        model_glb = charger_modele_glb(nom)
-        
-        # Utiliser le modèle GLB s'il existe, sinon utiliser un cube simple
-        if model_glb:
-            try:
-                super().__init__(
-                    model=model_glb,
-                    position=position,
-                    scale=taille,
-                    collider='box'
-                )
-            except:
-                # Fallback sur cube si le modèle GLB échoue à charger
-                super().__init__(
-                    model='cube',
-                    color=valeur_couleur,
-                    position=position,
-                    scale=taille,
-                    collider='box'
-                )
-        else:
-            # Fallback sur cube basique
-            super().__init__(
-                model='cube',
-                color=valeur_couleur,
-                position=position,
-                scale=taille,
-                collider='box'
-            )
-        
+
+        taille = 1.5
+        if espece == "Insecte": taille = 0.4
+        elif espece == "Oiseau": taille = 0.8
+
+        # 🔥 récupération du modèle
+        modele = MODELES_ANIMAUX.get(nom, 'cube')
+
+        super().__init__(
+            model=modele,
+            color=color.white,   # ⚠️ important pour GLB (évite teinte bizarre)
+            position=position,
+            scale=taille,
+            collider='box'
+        )
+
         self.nom = nom
         self.espece = espece
         self.comportement = comportement
         self.rarete = rarete
         self.decouvert = False
         self.etiquette = 'animal'
-        self.base_y = position[1]  # Pour gérer le vol
+        self.base_y = position[1]
 
     def mettre_a_jour_ia(self, joueur, entites):
         # Animation de vol pour les créatures en hauteur
@@ -236,43 +128,16 @@ class Animal(Entity):
         elif self.comportement == 'curieux' and dist_vers_joueur < 25:
             self.look_at(Vec3(joueur.x, self.y, joueur.z))
 
-class Arbre(Entity):
-    def __init__(self, position, type_arbre="arbre_grand"):
-        taille = TAILLES_ELEMENTS.get(type_arbre, 1.0)
-        
-        model_path = None
-        if type_arbre in MODELES_ARBRES:
-            model_path = GROUND_DIR / MODELES_ARBRES[type_arbre]
-        
-        if model_path and model_path.exists():
-            try:
-                super().__init__(
-                    model=chemin_modele_ursina(model_path),
-                    position=position,
-                    scale=taille,
-                    collider='box'
-                )
-            except:
-                # Fallback
-                super().__init__(
-                    model='cube',
-                    color=color.green,
-                    position=position,
-                    scale=taille,
-                    collider='box'
-                )
-        else:
-            # Fallback simple
-            super().__init__(
-                model='cube',
-                color=color.green,
-                position=position,
-                scale=taille,
-                collider='box'
-            )
-        self.etiquette = 'arbre'
-
 class Dechet(Entity):
+    class Arbre(Entity):
+        def __init__(self, position):
+            super().__init__(
+                model='3d/ground/00001_tree',                           
+                position=position,
+                scale=6,
+                collider='mesh',
+            )
+            self.etiquette = 'arbre'
     def __init__(self, position):
         super().__init__(
             model='cube',
@@ -678,7 +543,7 @@ def creer_menu_encyclopedie(gest_menus, etat_jeu, entites):
             col = color.white
             for a in entites:
                 if hasattr(a, 'nom') and a.nom == nom:
-                    col = a.color if hasattr(a, 'color') else color.white
+                    col = a.color
                     break
             col_x = -0.34 + (idx % 4) * 0.225
             col_y = 0.10 - (idx // 4) * 0.24
@@ -730,7 +595,7 @@ def creer_menu_boutique(gest_menus, etat_jeu, appareil_photo, gest_notifs):
 
 def creer_menu_quiz(gest_menus, gest_notifs, etat_jeu):
     panneau = Entity(parent=camera.ui, model='quad', color=Couleurs.PANNEAU,
-                     scale=(0.52, 0.55), z=0.4, enabled=False)
+                     scale=(0.52, 0.55), z=0.4, enabled=False) # Panneau légèrement plus haut
     Text("Quiz Naturel", parent=panneau, y=0.40, origin=(0,0), scale=2.5, color=Couleurs.TITRE, z=-0.1)
     question = Text("", parent=panneau, y=0.25, origin=(0,0), scale=1.5, color=color.white, z=-0.1)
 
@@ -763,15 +628,7 @@ class JeuFaunex:
         self.joueur = FirstPersonController(position=(0,2,0), speed=10)
         self.etat_jeu.joueur = self.joueur
 
-        # Terrain avec shader amélioré
-        self.terrain = Entity(
-            model='plane',
-            texture='grass',
-            texture_scale=(10, 10),
-            scale=300,
-            collider='box',
-            shader=lit_with_shadows_shader
-        )
+        self.terrain = Entity(model='plane', texture='grass', collider='mesh', scale=300, color=color.rgb(85,140,65))
         Sky()
 
         self.etat_jeu.charger(self.appareil_photo)
@@ -822,7 +679,7 @@ class JeuFaunex:
             ("Scorpion", "Insecte", color.red, (80, 0.2, 10), "fuit", 3),
             ("Scarabée", "Insecte", color.rgb(20, 20, 80), (-25, 0.1, -25), "fuit", 1),
             ("Mante", "Insecte", color.lime, (-50, 0.5, -10), "sommeil", 3),
-            ("Papillon", "Insecte", color.cyan, (35, 3, -15), "curieux", 2),
+            ("Papillon", "Insecte", color.cyan, (35, 3, -15), "curieux", 2), # Vol très bas
         ]
         
         for donnees in donnees_animaux:
@@ -832,10 +689,10 @@ class JeuFaunex:
         for pos in positions_dechets:
             self.entites.append(Dechet(pos))
 
-        # Ajouter les arbres
+        # Add some trees
         positions_arbres = [(-10,0,10), (20,0,30), (40,0,-20), (-30,0,-40), (60,0,0)]
         for pos in positions_arbres:
-            self.entites.append(Arbre(pos, "arbre_grand"))
+                self.entites.append(Dechet.Arbre(pos))
 
         self.pnj = PNJ("Garde Forestier", (0,1,10), color.green)
         self.entites.append(self.pnj)

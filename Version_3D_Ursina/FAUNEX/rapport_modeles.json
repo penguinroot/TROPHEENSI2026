@@ -1,0 +1,199 @@
+{
+  "animaux": [
+    {
+      "nom": "Renard Roux",
+      "espece": "Mammifère",
+      "fichier": "01_red_fox.glb",
+      "present": true,
+      "taille_kb": 60.59765625
+    },
+    {
+      "nom": "Ours Brun",
+      "espece": "Mammifère",
+      "fichier": "02_brown_bear.glb",
+      "present": true,
+      "taille_kb": 66.42578125
+    },
+    {
+      "nom": "Cerf",
+      "espece": "Mammifère",
+      "fichier": "03_deer.glb",
+      "present": true,
+      "taille_kb": 55.50390625
+    },
+    {
+      "nom": "Fennec",
+      "espece": "Mammifère",
+      "fichier": "04_fennec.glb",
+      "present": true,
+      "taille_kb": 572.58203125
+    },
+    {
+      "nom": "Loup Gris",
+      "espece": "Mammifère",
+      "fichier": "05_gray_wolf.glb",
+      "present": true,
+      "taille_kb": 151.78515625
+    },
+    {
+      "nom": "Sanglier",
+      "espece": "Mammifère",
+      "fichier": "06_wild_boar.glb",
+      "present": true,
+      "taille_kb": 179.78515625
+    },
+    {
+      "nom": "Lynx",
+      "espece": "Mammifère",
+      "fichier": "07_lynx.glb",
+      "present": true,
+      "taille_kb": 133.390625
+    },
+    {
+      "nom": "Panthère",
+      "espece": "Mammifère",
+      "fichier": "08_panther.glb",
+      "present": true,
+      "taille_kb": 86.9765625
+    },
+    {
+      "nom": "Aigle Royal",
+      "espece": "Oiseau",
+      "fichier": "09_golden_eagle.glb",
+      "present": true,
+      "taille_kb": 158.48828125
+    },
+    {
+      "nom": "Faucon",
+      "espece": "Oiseau",
+      "fichier": "10_falcon.glb",
+      "present": true,
+      "taille_kb": 194.23828125
+    },
+    {
+      "nom": "Corbeau",
+      "espece": "Oiseau",
+      "fichier": "11_crow.glb",
+      "present": true,
+      "taille_kb": 187.78515625
+    },
+    {
+      "nom": "Hibou",
+      "espece": "Oiseau",
+      "fichier": "12_owl.glb",
+      "present": true,
+      "taille_kb": 168.453125
+    },
+    {
+      "nom": "Pigeon",
+      "espece": "Oiseau",
+      "fichier": "13_pigeon.glb",
+      "present": true,
+      "taille_kb": 189.22265625
+    },
+    {
+      "nom": "Crocodile",
+      "espece": "Reptile",
+      "fichier": "14_crocodile.glb",
+      "present": true,
+      "taille_kb": 37.50390625
+    },
+    {
+      "nom": "Vipère",
+      "espece": "Reptile",
+      "fichier": "15_viper.glb",
+      "present": true,
+      "taille_kb": 211.6171875
+    },
+    {
+      "nom": "Caméléon",
+      "espece": "Reptile",
+      "fichier": "16_chameleon.glb",
+      "present": true,
+      "taille_kb": 40.73046875
+    },
+    {
+      "nom": "Iguane",
+      "espece": "Reptile",
+      "fichier": "17_iguana.glb",
+      "present": true,
+      "taille_kb": 446.0703125
+    },
+    {
+      "nom": "Scorpion",
+      "espece": "Insecte",
+      "fichier": "18_scorpio.glb",
+      "present": true,
+      "taille_kb": 40.125
+    },
+    {
+      "nom": "Scarabée",
+      "espece": "Insecte",
+      "fichier": "19_beetle.glb",
+      "present": true,
+      "taille_kb": 62.8984375
+    },
+    {
+      "nom": "Mante",
+      "espece": "Insecte",
+      "fichier": "20_mantis.glb",
+      "present": true,
+      "taille_kb": 47.01953125
+    },
+    {
+      "nom": "Papillon",
+      "espece": "Insecte",
+      "fichier": "21_butterfly.glb",
+      "present": true,
+      "taille_kb": 25.10546875
+    }
+  ],
+  "terrain": [
+    {
+      "nom": "Arbre Grand",
+      "fichier": "00001_tree.glb",
+      "present": true,
+      "taille_kb": 42.01171875
+    },
+    {
+      "nom": "Arbre Petit",
+      "fichier": "00002_tree.glb",
+      "present": true,
+      "taille_kb": 5.26953125
+    },
+    {
+      "nom": "Rocher Petit",
+      "fichier": "00003_rocks.glb",
+      "present": true,
+      "taille_kb": 5.80078125
+    },
+    {
+      "nom": "Rocher Grand",
+      "fichier": "00004_rocks.glb",
+      "present": true,
+      "taille_kb": 16.63671875
+    },
+    {
+      "nom": "Buisson",
+      "fichier": "00005_bush.glb",
+      "present": true,
+      "taille_kb": 29.1796875
+    }
+  ],
+  "farmer": [
+    {
+      "nom": "Fermier Basique",
+      "fichier": "00_farmer.glb",
+      "present": true,
+      "taille_kb": 72.0859375
+    },
+    {
+      "nom": "Fermier V2",
+      "fichier": "00_farmer_v2.glb",
+      "present": true,
+      "taille_kb": 1338.40234375
+    }
+  ],
+  "total_presents": 28,
+  "total_manquants": 0
+}
