@@ -1,10 +1,16 @@
 {
-    "credits": 50,
-    "appats_restants": 2,
-    "encyclopedie": [],
-    "badges": [],
+    "credits": 91,
+    "appats_restants": 3,
+    "encyclopedie": [
+        "Hibou",
+        "Renard Roux",
+        "Cerf"
+    ],
+    "badges": [
+        "Photographe Débutant"
+    ],
     "dechets_ramasses": 0,
-    "capacite_sd": 5,
-    "photos_sd": 0,
-    "pnj_rencontre": false
+    "capacite_sd": 50,
+    "photos_sd": 9,
+    "pnj_rencontre": true
 }

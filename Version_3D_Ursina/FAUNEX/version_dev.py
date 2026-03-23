@@ -99,6 +99,15 @@ class Animal(Entity):
             self.look_at(Vec3(joueur.x, self.y, joueur.z))
 
 class Dechet(Entity):
+    class Arbre(Entity):
+        def __init__(self, position):
+            super().__init__(
+                model='tree.glb',  # Assumes tree.glb is in assets
+                position=position,
+                scale=6,
+                collider='mesh',
+            )
+            self.etiquette = 'arbre'
     def __init__(self, position):
         super().__init__(
             model='cube',
@@ -649,6 +658,11 @@ class JeuFaunex:
         positions_dechets = [(5,0.5,5), (-15,0.5,20), (60,0.5,5)]
         for pos in positions_dechets:
             self.entites.append(Dechet(pos))
+
+        # Add some trees
+        positions_arbres = [(-10,0,10), (20,0,30), (40,0,-20), (-30,0,-40), (60,0,0)]
+        for pos in positions_arbres:
+                self.entites.append(Dechet.Arbre(pos))
 
         self.pnj = PNJ("Garde Forestier", (0,1,10), color.green)
         self.entites.append(self.pnj)
