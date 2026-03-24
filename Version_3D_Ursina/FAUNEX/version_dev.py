@@ -1,3 +1,10 @@
+from panda3d.core import loadPrcFileData
+loadPrcFileData('', '\n'.join([
+    'load-display pandagl',
+    'aux-display pandadx9',
+    'aux-display pandadx8',
+    'aux-display tinydisplay',
+]))
 from ursina import *
 from ursina.prefabs.first_person_controller import FirstPersonController
 from ursina.shaders import lit_with_shadows_shader
@@ -8,9 +15,17 @@ from math import sin
 from collections import deque
 from pathlib import Path
 from ursina import PointLight, DirectionalLight, AmbientLight
+import sys
+from pathlib import Path
 
+
+if getattr(sys, 'frozen', False):
+    BASE_DIR = Path(sys._MEIPASS)
+else:
+    BASE_DIR = Path(__file__).parent
+
+ASSETS_DIR = BASE_DIR / "assets_add"
 # Configuration des chemins pour les assets
-ASSETS_DIR = Path(__file__).parent / "assets_add"
 ANIMALS_DIR = ASSETS_DIR / "3d" / "animals"
 GROUND_DIR  = ASSETS_DIR / "3d" / "ground"
 FARMER_DIR  = ASSETS_DIR / "3d" / "farmer"
