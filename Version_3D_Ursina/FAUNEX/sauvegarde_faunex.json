@@ -1,13 +1,23 @@
 {
-    "credits": 332,
-    "appats_restants": 2,
+    "credits": 1086,
+    "appats_restants": 4,
     "encyclopedie": [
+        "Loup Gris",
+        "Papillon",
         "Ours Brun",
-        "Scarabée"
+        "Hibou",
+        "Caméléon",
+        "Mante",
+        "Fennec",
+        "Scarabée",
+        "Crocodile",
+        "Renard Roux"
     ],
-    "badges": [],
+    "badges": [
+        "Photographe Débutant"
+    ],
     "dechets_ramasses": 0,
-    "capacite_sd": 5,
-    "photos_sd": 3,
-    "pnj_rencontre": false
+    "capacite_sd": 25,
+    "photos_sd": 11,
+    "pnj_rencontre": true
 }

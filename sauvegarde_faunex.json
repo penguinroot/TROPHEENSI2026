@@ -1,16 +1,26 @@
 {
-    "credits": 91,
-    "appats_restants": 3,
+    "credits": 1371,
+    "appats_restants": 11,
     "encyclopedie": [
         "Hibou",
         "Renard Roux",
-        "Cerf"
+        "Cerf",
+        "Ours Brun",
+        "Papillon",
+        "Mante",
+        "Iguane",
+        "Loup Gris",
+        "Sanglier",
+        "Panthère",
+        "Scorpion",
+        "Corbeau",
+        "Aigle Royal"
     ],
     "badges": [
         "Photographe Débutant"
     ],
     "dechets_ramasses": 0,
     "capacite_sd": 50,
-    "photos_sd": 9,
+    "photos_sd": 28,
     "pnj_rencontre": true
 }
