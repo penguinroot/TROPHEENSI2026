@@ -1,13 +1,17 @@
 {
-    "credits": 295,
-    "appats_restants": 2,
+    "credits": 516,
+    "appats_restants": 3,
     "encyclopedie": [
-        "Hibou",
-        "Papillon"
+        "Loup Gris",
+        "Panthere",
+        "Lynx"
     ],
-    "badges": [],
-    "dechets_ramasses": 3,
+    "badges": [
+        "Photographe Debutant"
+    ],
+    "dechets_ramasses": 1,
     "capacite_sd": 5,
-    "photos_sd": 2,
-    "pnj_rencontre": true
+    "photos_sd": 4,
+    "pnj_rencontre": true,
+    "appat_pnj_donne": false
 }
