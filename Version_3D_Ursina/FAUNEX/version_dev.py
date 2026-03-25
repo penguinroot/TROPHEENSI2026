@@ -36,10 +36,11 @@ FARMER_DIR  = ASSETS_DIR / "3d" / "farmer"
 
 application.asset_folder = ASSETS_DIR
 
-app = Ursina(title='FAUNEX', borderless=False)
+app = Ursina(title='FAUNEX', borderless=True, fullscreen=True)
 window.exit_button.enabled = False
-window.fps_counter.enabled = True
-
+window.fps_counter.enabled = False
+window.entity_counter.enabled = False
+window.collider_counter.enabled = False
 
 # ─────────────────────────────────────────
 #  Classe d'intro vidéo (version corrigée)
@@ -1310,7 +1311,7 @@ class JeuFaunex:
                 self.entites.append(arbre)
                 positions_occupees.append((x, 0, z))
 
-        self.pnj = PNJ("Garde Forestier", (0, 1, 10), color.green)
+        self.pnj = PNJ("Garde Forestier", (10, 1, 10), color.green)
         self.entites.append(self.pnj)
         self.entites.append(Empreinte((5, 0.1, 10)))
 
