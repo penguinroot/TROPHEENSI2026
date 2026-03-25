@@ -22,5 +22,6 @@
     "dechets_ramasses": 0,
     "capacite_sd": 50,
     "photos_sd": 28,
-    "pnj_rencontre": true
+    "pnj_rencontre": true,
+    "appat_pnj_donne": false
 }

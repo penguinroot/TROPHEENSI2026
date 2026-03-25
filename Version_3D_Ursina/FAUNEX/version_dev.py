@@ -45,167 +45,167 @@ window.collider_counter.enabled = False
 # ─────────────────────────────────────────
 #  Classe d'intro vidéo (version corrigée)
 # ─────────────────────────────────────────
-# import cv2
-# import numpy as np
-# from panda3d.core import Texture, PNMImage
+import cv2
+import numpy as np
+from panda3d.core import Texture, PNMImage
 
-# class IntroVideo:
-#     def __init__(self, video_path, on_finish_callback):
-#         self.on_finish    = on_finish_callback
-#         self.playing      = True
-#         self.cap          = None
-#         self.video_entity = None
-#         self.tex          = None
+class IntroVideo:
+    def __init__(self, video_path, on_finish_callback):
+        self.on_finish    = on_finish_callback
+        self.playing      = True
+        self.cap          = None
+        self.video_entity = None
+        self.tex          = None
 
-#         # Fond noir
-#         self.fond = Entity(
-#             model='quad', color=color.black,
-#             scale=(2, 2), parent=camera.ui, z=0.1
-#         )
+        # Fond noir
+        self.fond = Entity(
+            model='quad', color=color.black,
+            scale=(2, 2), parent=camera.ui, z=0.1
+        )
 
-#         video_path = Path(video_path)
-#         if not video_path.exists():
-#             print(f"❌ Vidéo non trouvée : {video_path}")
-#             self.skip()
-#             return
+        video_path = Path(video_path)
+        if not video_path.exists():
+            print(f"❌ Vidéo non trouvée : {video_path}")
+            self.skip()
+            return
 
-#         self.cap = cv2.VideoCapture(str(video_path.absolute()))
-#         if not self.cap.isOpened():
-#             print(f"❌ OpenCV ne peut pas ouvrir : {video_path}")
-#             self.skip()
-#             return
+        self.cap = cv2.VideoCapture(str(video_path.absolute()))
+        if not self.cap.isOpened():
+            print(f"❌ OpenCV ne peut pas ouvrir : {video_path}")
+            self.skip()
+            return
 
-#         self.fps          = self.cap.get(cv2.CAP_PROP_FPS) or 30
-#         self.frame_time   = 1.0 / self.fps
-#         self.last_frame_t = time.time()
+        self.fps          = self.cap.get(cv2.CAP_PROP_FPS) or 30
+        self.frame_time   = 1.0 / self.fps
+        self.last_frame_t = time.time()
 
-#         ret, frame = self.cap.read()
-#         if not ret:
-#             print(f"❌ Impossible de lire la première frame")
-#             self.skip()
-#             return
+        ret, frame = self.cap.read()
+        if not ret:
+            print(f"❌ Impossible de lire la première frame")
+            self.skip()
+            return
 
-#         h, w  = frame.shape[:2]
-#         ratio = w / h
-#         print(f"📹 Vidéo ouverte : {w}x{h} @ {self.fps:.1f} fps")
+        h, w  = frame.shape[:2]
+        ratio = w / h
+        print(f"📹 Vidéo ouverte : {w}x{h} @ {self.fps:.1f} fps")
 
-#         # Texture Panda3D brute
-#         from panda3d.core import Texture as PandaTexture
-#         self.tex = PandaTexture()
-#         self.tex.setup2dTexture(w, h, PandaTexture.T_unsigned_byte, PandaTexture.F_rgb)
-#         self.tex.setKeepRamImage(True)
+        # Texture Panda3D brute
+        from panda3d.core import Texture as PandaTexture
+        self.tex = PandaTexture()
+        self.tex.setup2dTexture(w, h, PandaTexture.T_unsigned_byte, PandaTexture.F_rgb)
+        self.tex.setKeepRamImage(True)
 
-#         # Entité quad — on applique la texture Panda3D directement
-#         # via setTexture() sur le NodePath (Entity hérite de NodePath)
-#         self.video_entity = Entity(
-#             model='quad',
-#             scale=(1.2, 1.2 / ratio),
-#             parent=camera.ui,
-#             z=0.2
-#         )
-#         self.video_entity.setTexture(self.tex, 1)
+        # Entité quad — on applique la texture Panda3D directement
+        # via setTexture() sur le NodePath (Entity hérite de NodePath)
+        self.video_entity = Entity(
+            model='quad',
+            scale=(1.2, 1.2 / ratio),
+            parent=camera.ui,
+            z=0.2
+        )
+        self.video_entity.setTexture(self.tex, 1)
 
-#         # Première frame
-#         self._push_frame(frame)
+        # Première frame
+        self._push_frame(frame)
 
-#         # Audio séparé
-#         self.sound = None
-#         for ext in ('.mp3', '.wav', '.ogg'):
-#             audio_path = video_path.with_suffix(ext)
-#             if audio_path.exists():
-#                 print(f"🔊 Audio : {audio_path.name}")
-#                 try:
-#                     rel = audio_path.relative_to(ASSETS_DIR).as_posix()
-#                     self.sound = Audio(rel, loop=False, autoplay=True)
-#                 except Exception as e:
-#                     print(f"⚠️ Impossible de charger l'audio : {e}")
-#                 break
-#         if not self.sound:
-#             print("ℹ️ Aucun fichier audio trouvé")
+        # Audio séparé
+        self.sound = None
+        for ext in ('.mp3', '.wav', '.ogg'):
+            audio_path = video_path.with_suffix(ext)
+            if audio_path.exists():
+                print(f"🔊 Audio : {audio_path.name}")
+                try:
+                    rel = audio_path.relative_to(ASSETS_DIR).as_posix()
+                    self.sound = Audio(rel, loop=False, autoplay=True)
+                except Exception as e:
+                    print(f"⚠️ Impossible de charger l'audio : {e}")
+                break
+        if not self.sound:
+            print("ℹ️ Aucun fichier audio trouvé")
 
-#         self.skip_text = Text(
-#             "Cliquez pour passer",
-#             parent=camera.ui, position=(0, -0.43),
-#             origin=(0, 0), scale=1.1,
-#             color=color.rgba(255, 255, 255, 160),
-#             z=0.3
-#         )
+        self.skip_text = Text(
+            "Cliquez pour passer",
+            parent=camera.ui, position=(0, -0.43),
+            origin=(0, 0), scale=1.1,
+            color=color.rgba(255, 255, 255, 160),
+            z=0.3
+        )
 
-#         self.alpha     = 160
-#         self.alpha_dir = 50
-#         print("🎬 Intro vidéo démarrée (OpenCV)")
+        self.alpha     = 160
+        self.alpha_dir = 50
+        print("🎬 Intro vidéo démarrée (OpenCV)")
 
-#     # ------------------------------------------------------------------
-#     def _push_frame(self, frame):
-#         frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-#         frame_rgb = np.flipud(frame_rgb)
-#         self.tex.setRamImage(frame_rgb.tobytes())
+    # ------------------------------------------------------------------
+    def _push_frame(self, frame):
+        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        frame_rgb = np.flipud(frame_rgb)
+        self.tex.setRamImage(frame_rgb.tobytes())
 
-#     # ------------------------------------------------------------------
-#     def update(self):
-#         if not self.playing or self.cap is None:
-#             return
+    # ------------------------------------------------------------------
+    def update(self):
+        if not self.playing or self.cap is None:
+            return
 
-#         # Clignotement texte
-#         if hasattr(self, 'skip_text') and self.skip_text:
-#             self.alpha += self.alpha_dir * time.dt * 120
-#             if self.alpha >= 220:
-#                 self.alpha     = 220
-#                 self.alpha_dir = -50
-#             elif self.alpha <= 80:
-#                 self.alpha     = 80
-#                 self.alpha_dir = 50
-#             self.skip_text.color = color.rgba(255, 255, 255, int(self.alpha))
+        # Clignotement texte
+        if hasattr(self, 'skip_text') and self.skip_text:
+            self.alpha += self.alpha_dir * time.dt * 120
+            if self.alpha >= 220:
+                self.alpha     = 220
+                self.alpha_dir = -50
+            elif self.alpha <= 80:
+                self.alpha     = 80
+                self.alpha_dir = 50
+            self.skip_text.color = color.rgba(255, 255, 255, int(self.alpha))
 
-#         # Cadence frames
-#         maintenant = time.time()
-#         if maintenant - self.last_frame_t < self.frame_time:
-#             return
+        # Cadence frames
+        maintenant = time.time()
+        if maintenant - self.last_frame_t < self.frame_time:
+            return
 
-#         self.last_frame_t = maintenant
-#         ret, frame = self.cap.read()
+        self.last_frame_t = maintenant
+        ret, frame = self.cap.read()
 
-#         if not ret:
-#             print("🎬 Vidéo terminée.")
-#             self.skip()
-#             return
+        if not ret:
+            print("🎬 Vidéo terminée.")
+            self.skip()
+            return
 
-#         self._push_frame(frame)
+        self._push_frame(frame)
 
-#     # ------------------------------------------------------------------
-#     def on_click(self):
-#         if self.playing:
-#             self.skip()
+    # ------------------------------------------------------------------
+    def on_click(self):
+        if self.playing:
+            self.skip()
 
-#     # ------------------------------------------------------------------
-#     def skip(self):
-#         if not self.playing:
-#             return
+    # ------------------------------------------------------------------
+    def skip(self):
+        if not self.playing:
+            return
 
-#         self.playing = False
-#         print("🎮 Fin de l'intro, démarrage du jeu...")
+        self.playing = False
+        print("🎮 Fin de l'intro, démarrage du jeu...")
 
-#         if self.cap:
-#             self.cap.release()
-#             self.cap = None
+        if self.cap:
+            self.cap.release()
+            self.cap = None
 
-#         for ent in [self.video_entity, self.fond,
-#                     getattr(self, 'skip_text', None)]:
-#             if ent:
-#                 try:
-#                     destroy(ent)
-#                 except Exception:
-#                     pass
+        for ent in [self.video_entity, self.fond,
+                    getattr(self, 'skip_text', None)]:
+            if ent:
+                try:
+                    destroy(ent)
+                except Exception:
+                    pass
 
-#         if self.sound:
-#             try:
-#                 self.sound.stop()
-#                 destroy(self.sound)
-#             except Exception:
-#                 pass
+        if self.sound:
+            try:
+                self.sound.stop()
+                destroy(self.sound)
+            except Exception:
+                pass
 
-#         if self.on_finish:
-#             self.on_finish()
+        if self.on_finish:
+            self.on_finish()
 
 # ─────────────────────────────────────────
 #  Palette de couleurs UI
