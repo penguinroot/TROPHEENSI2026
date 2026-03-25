@@ -168,7 +168,14 @@ def charger_modele(nom, base_dir, mapping):
 
     # Priorité OBJ
     chemin_obj = chemin_base.with_suffix('.obj')
-    chemin_complet = chemin_obj if chemin_obj.exists() else chemin_base
+    chemin_fbx = chemin_base.with_suffix('.fbx')
+
+    if chemin_obj.exists():
+        chemin_complet = chemin_obj
+    elif chemin_fbx.exists():
+        chemin_complet = chemin_fbx
+    else:
+        chemin_complet = chemin_base
 
     if not chemin_complet.exists():
         print(f"⚠️  Modèle non trouvé : {chemin_complet}")
@@ -221,7 +228,7 @@ class Animal(Entity):
                     model=model_path,
                     position=position,
                     scale=taille,
-                    collider='box'
+                    collider='mesh'
                 )
                 self.shader = lit_with_shadows_shader
             except Exception as e:
@@ -231,7 +238,7 @@ class Animal(Entity):
                     color=valeur_couleur,
                     position=position,
                     scale=taille,
-                    collider='box'
+                    collider='mesh'
                 )
         else:
             super().__init__(
@@ -239,7 +246,7 @@ class Animal(Entity):
                 color=valeur_couleur,
                 position=position,
                 scale=taille,
-                collider='box'
+                collider='mesh'
             )
 
         print(f"[Animal] {nom} — model: {self.model}, texture: {self.texture}")
@@ -292,13 +299,13 @@ class Arbre(Entity):
 
         if model_path:
             try:
-                super().__init__(model=model_path, position=position, scale=taille, collider='box')
+                super().__init__(model=model_path, position=position, scale=taille, collider='mesh')
                 self.shader = lit_with_shadows_shader
             except Exception as e:
                 print(f"⚠️  Fallback arbre : {e}")
-                super().__init__(model='cube', color=color.green, position=position, scale=taille, collider='box')
+                super().__init__(model='cube', color=color.green, position=position, scale=taille, collider='mesh')
         else:
-            super().__init__(model='cube', color=color.green, position=position, scale=taille, collider='box')
+            super().__init__(model='cube', color=color.green, position=position, scale=taille, collider='mesh')
 
         self.etiquette = 'arbre'
 
@@ -307,20 +314,40 @@ class Dechet(Entity):
     def __init__(self, position):
         super().__init__(
             model='cube', color=color.dark_gray, scale=0.5,
-            position=position, collider='box'
+            position=position, collider='mesh'
         )
         self.etiquette = 'dechet'
 
 
 class PNJ(Entity):
     def __init__(self, nom, position, valeur_couleur):
-        super().__init__(
-            model='cube', color=valeur_couleur,
-            position=position, scale=(1, 2, 1), collider='box'
-        )
+        model_path = charger_modele(nom, FARMER_DIR, {"Garde Forestier": "00_farmer.fbx"})        
+        if model_path:
+            try:
+                super().__init__(
+                    model=model_path,
+                    position=position, scale=1.5, collider='box'
+                )
+                self.shader = lit_with_shadows_shader
+            except Exception as e:
+                print(f"⚠️  Fallback cube PNJ : {e}")
+                super().__init__(
+                    model='cube', color=valeur_couleur,
+                    position=position, scale=(1, 2, 1), collider='box'
+                )
+        else:
+            super().__init__(
+                model='cube', color=valeur_couleur,
+                position=position, scale=(1, 2, 1), collider='box'
+            )
+        
         self.nom       = nom
         self.etiquette = 'pnj'
         self.a_salue   = False
+    
+    def saluer(self):
+        """Interacts with the player when nearby."""
+        pass
 
 
 class Appat(Entity):
@@ -827,7 +854,7 @@ class JeuFaunex:
         self.terrain = Entity(
             model='plane',
             texture='grass',
-            texture_scale=(10, 10),
+            texture_scale=(100, 100),
             scale=300,
             collider='box',
             shader=lit_with_shadows_shader
